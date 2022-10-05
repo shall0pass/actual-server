@@ -3,7 +3,7 @@ name: Build Preview Docker Image
 on:
   push:
     branches:
-      - 'preview'
+      - preview
   # run on repo dispatch webhook
   repository_dispatch:
     types:
