@@ -21,8 +21,7 @@ permissions:
 
 env:
   IMAGES: |
-    actualbudget/actual-server
-    ghcr.io/actualbudget/actual-server
+    ghcr.io/shall0pass/actual-server
 
   # Creates the following tags:
   # - actual-server:edge
@@ -36,7 +35,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        os: [ubuntu, alpine]
+        os: [ubuntu]
     steps:
       - uses: actions/checkout@v3
 
