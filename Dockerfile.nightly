@@ -1,0 +1,39 @@
+# Build an unreleased @actual-app/web from github
+FROM node:18-bullseye as client
+RUN apt-get update && apt-get install -y openssl git rsync
+
+# Branch info to use for the @actual-app/web build
+ENV USER=shall0pass
+ENV REPO=actual
+ENV BRANCH=crossorigin
+
+WORKDIR /actual
+# cache invalidation. This should return a new value if the commit changes,
+# forcing a rebuild from this step.
+# ADD https://api.github.com/repos/$USER/$REPO/git/refs/heads/$BRANCH cache_version
+# RUN rm cache_version && \
+RUN git clone -b $BRANCH https://github.com/$USER/$REPO.git . && \
+    yarn
+# CI true skips an unnecessary lint step
+ENV CI=true
+RUN yarn install
+RUN ./bin/package-browser
+
+# build the server with the FE from the previous step
+WORKDIR /app
+ENV NODE_ENV=production
+COPY yarn.lock package.json ./
+RUN npm rebuild bcrypt --build-from-source
+RUN yarn install --production
+
+WORKDIR /
+RUN cp actual/packages/desktop-client/build/* app/node_modules/@actual-app/web/build/ -r
+
+# final server build without any extras
+FROM node:18-bullseye as prod
+RUN apt-get update && apt-get install -y openssl tini && apt-get clean -y && rm -rf /var/lib/apt/lists/
+WORKDIR /app
+COPY --from=client /app /app
+COPY . .
+ENTRYPOINT ["/usr/bin/tini","-g",  "--"]
+CMD ["node", "app.js"]
