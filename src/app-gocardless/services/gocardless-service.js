@@ -22,8 +22,8 @@ const clients = new Map();
 
 const getGocardlessClient = () => {
   const secrets = {
-    secretId: secretsService.get(SecretName.nordigen_secretId),
-    secretKey: secretsService.get(SecretName.nordigen_secretKey),
+    secretId: secretsService.get(SecretName.gocardless_secretId),
+    secretKey: secretsService.get(SecretName.gocardless_secretKey),
   };
 
   const hash = JSON.stringify(secrets);
@@ -261,7 +261,7 @@ export const goCardlessService = {
     await goCardlessService.setToken();
 
     const response = await client.initSession({
-      redirectUrl: host + '/nordigen/link',
+      redirectUrl: host + '/gocardless/link',
       institutionId,
       referenceId: uuid.v4(),
       accessValidForDays,
